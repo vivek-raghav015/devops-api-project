@@ -1,32 +1,28 @@
 
-name: DevOps API Explorer CI
+name: DevOps API Explorer CI/CD
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  validate:
-    name: Validate project
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download repository code
+      - name: Get project code
         uses: actions/checkout@v4
 
-      - name: Check index.html exists
-        run: test -f index.html
-
-      - name: Check API endpoints exist
+      - name: Check required files
         run: |
-          grep -q "jsonplaceholder.typicode.com/users" index.html
-          grep -q "jsonplaceholder.typicode.com/posts" index.html
+          test -f index.html
+          test -f server.js
+          test -f package.json
+          echo "Project files found!"
 
-      - name: Test GitHub Secret
+      - name: Check GitHub Secret
         env:
           DEMO_SECRET: ${{ secrets.DEMO_SECRET }}
         run: |
@@ -37,5 +33,9 @@ jobs:
             exit 1
           fi
 
-      - name: Show success message
-        run: echo "Project validation passed!"
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: devops-api-explorer-yourinitials
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
