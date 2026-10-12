@@ -1,0 +1,30 @@
+
+name: DevOps API Explorer CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository code
+        uses: actions/checkout@v4
+
+      - name: Check index.html exists
+        run: test -f index.html
+
+      - name: Check API endpoints exist
+        run: |
+          grep -q "jsonplaceholder.typicode.com/users" index.html
+          grep -q "jsonplaceholder.typicode.com/posts" index.html
+
+      - name: Show success message
+        run: echo "Project validation passed!"
