@@ -26,5 +26,16 @@ jobs:
           grep -q "jsonplaceholder.typicode.com/users" index.html
           grep -q "jsonplaceholder.typicode.com/posts" index.html
 
+      - name: Test GitHub Secret
+        env:
+          DEMO_SECRET: ${{ secrets.DEMO_SECRET }}
+        run: |
+          if [ -n "$DEMO_SECRET" ]; then
+            echo "GitHub Secret is available!"
+          else
+            echo "GitHub Secret is missing!"
+            exit 1
+          fi
+
       - name: Show success message
         run: echo "Project validation passed!"
